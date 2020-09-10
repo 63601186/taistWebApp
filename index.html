@@ -45,7 +45,7 @@
       headers:{ 
         'Content-Type':'application/json'
       },
-      body:Data,
+      body:JSON.stringify(Data),
       method:'POST'
     };
     fetch(Url, Params).then(data=>{return data.json();}).then(res=>{console.log(res);});
