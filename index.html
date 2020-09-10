@@ -48,6 +48,7 @@
       body:JSON.stringify(Data),
       method:'POST'
     };
+    console.log(JSON.stringify(Data));
     fetch(Url, Params).then(data=>{return data.json();}).then(res=>{console.log(res);});
   }
         
