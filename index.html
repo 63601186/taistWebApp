@@ -36,6 +36,19 @@
 
   function showPosition(position) {
     page.querySelector('#latlng').innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
+    const Url = 'https://supachai-taist-demo.firebaseio.com/logs.json';
+    let Data = {
+      latitude:position.coords.latitude,
+      longitude:position.coords.longitude
+    };
+    const Params = {
+      headers:{ 
+        'Content-Type':'application/json';
+      },
+      body:Data,
+      method:'POST'
+    };
+    fetch(Url, Params).then(data=>{return data.json();}).then(res=>{console.log(res);});
   }
         
   if (page.id === 'page1') {
