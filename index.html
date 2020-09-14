@@ -53,7 +53,7 @@
                     const t = new Date(pos.timestamp);
                     last_val = accelValues[accelValues.length-1];
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
-                    document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' + last_val.x.toString() + ',' + last_val.y.toString() + ',' + last_val.z.toString(); 
+                    document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' + last_val.x.toFixed(2) + ',' + last_val.y.toFixed(2) + ',' + last_val.z.toFixed(2); 
                     accelValues = [];
                     console.log(pos.coords, pos.timestamp, t);
                 }, err => {
