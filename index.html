@@ -39,6 +39,25 @@
         let gpsWatchId = 0;
         let accelValues = [];
 
+        function submitFirebase(t, pos, motion) {
+            let Url = document.getElementById('server-url').value;
+            let Data = {
+                timestamp: t,
+                latitude: pos.latitude,
+                longitude: pos.longitude,
+                motion: motion
+            };
+            const Params = {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Data),
+                method: 'POST'
+            };
+            console.log(JSON.stringify(Data))
+            fetch(Url, Params).then(data => { return data.json(); }).then(res => { console.log(res); });
+        }
+
         function motionHandler(ev) {
             accelValues.push(ev.acceleration);                        
         }
@@ -54,6 +73,7 @@
                     last_val = accelValues[accelValues.length-1];
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
                     document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' + last_val.x.toFixed(2) + ',' + last_val.y.toFixed(2) + ',' + last_val.z.toFixed(2); 
+                    submitFirebase(t, pos.coords, accelValues)
                     accelValues = [];
                     console.log(pos.coords, pos.timestamp, t);
                 }, err => {
@@ -79,22 +99,6 @@
                 gpsWatchId = 0;
                 document.getElementById('start-button').innerText = 'START';
             }
-        }
-
-        window.fn.submitFirebase = function () {
-            let Url = document.getElementById('server-url').value;
-            let Data = {
-                url: Url
-            };
-            const Params = {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(Data),
-                method: 'POST'
-            };
-            console.log(JSON.stringify(Data))
-            //fetch(Url, Params).then(data => { return data.json(); }).then(res => { console.log(res); });
         }
 
         document.addEventListener('init', function (event) {
