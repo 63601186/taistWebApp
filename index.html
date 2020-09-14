@@ -1,66 +1,86 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
-  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
-  <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
+    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+    <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
 </head>
+
 <body>
-  <ons-navigator swipeable id="myNavigator" page="page1.html"></ons-navigator>
+    <ons-navigator swipeable id="appNavigator" page="mainPage.html"></ons-navigator>
 
-<template id="page1.html">
-  <ons-page id="page1">
-    <ons-toolbar>
-      <div class="center">Page 1</div>
-    </ons-toolbar>
+    <template id="mainPage.html">
+        <ons-page id="mainPage">
+            <ons-list>
+                <ons-list-header>Smartphone Probe</ons-list-header>
+                <ons-list-item>
+                    <label class="left">URL</label>
+                    <label class="center">
+                        <ons-input id="server-input" placeholder="Firebase URL"></ons-input>
+                    </label>
+                </ons-list-item>
+                <ons-list-item>
+                    <label class="left">GPS</label>
+                    <div class="right">
+                        <ons-switch id="gps-switch" checked="true"></ons-switch>
+                    </div>
+                </ons-list-item>                
+                <ons-list-item>
+                    <label class="left">Accelerometer</label>
+                    <div class="right">
+                        <ons-switch id="accel-switch" checked="false"></ons-switch>
+                    </div>
+                </ons-list-item>
+                <ons-list-item>
+                    <label class="left">Gyroscope</label>
+                    <div class="right">
+                        <ons-switch id="gyro-switch" checked="false"></ons-switch>
+                    </div>
+                </ons-list-item> 
+                <ons-list-item>
+                    <label class="left">Magnetometer</label>
+                    <div class="right">
+                        <ons-switch id="mag-switch" checked="false"></ons-switch>
+                    </div>
+                </ons-list-item>                                           
+                <ons-button modifier="large" id="start-button">START</ons-button>
+            </ons-list>
+        </ons-page>
+    </template>
 
-    <p>This is the first page.</p>
+    <script>
+        document.addEventListener('init', function (event) {
+            var page = event.target;
 
-    <ons-button id="push-button">Push page</ons-button>
-  </ons-page>
-</template>
+            function showPosition(position) {
+                page.querySelector('#latlng').innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
+                const Url = 'https://supachai-taist-demo.firebaseio.com/logs.json';
+                let Data = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                const Params = {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(Data),
+                    method: 'POST'
+                };
+                console.log(JSON.stringify(Data));
+                fetch(Url, Params).then(data => { return data.json(); }).then(res => { console.log(res); });
+            }
 
-<template id="page2.html">
-  <ons-page id="page2">
-    <ons-toolbar>
-      <div class="left"><ons-back-button>Page 1</ons-back-button></div>
-      <div class="center"></div>
-    </ons-toolbar>
-
-    <p id="latlng">This is the second page.</p>
-  </ons-page>
-</template>
-<script>
-  document.addEventListener('init', function(event) {
-  var page = event.target;
-
-  function showPosition(position) {
-    page.querySelector('#latlng').innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
-    const Url = 'https://supachai-taist-demo.firebaseio.com/logs.json';
-    let Data = {
-      latitude:position.coords.latitude,
-      longitude:position.coords.longitude
-    };
-    const Params = {
-      headers:{ 
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify(Data),
-      method:'POST'
-    };
-    console.log(JSON.stringify(Data));
-    fetch(Url, Params).then(data=>{return data.json();}).then(res=>{console.log(res);});
-  }
-        
-  if (page.id === 'page1') {
-    page.querySelector('#push-button').onclick = function() {
-      document.querySelector('#myNavigator').pushPage('page2.html', {data: {title: 'Page 2'}});
-    };
-  } else if (page.id === 'page2') {
-    page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
-    navigator.geolocation.getCurrentPosition(showPosition);
-  }
-});
-</script>
+            if (page.id === 'page1') {
+                page.querySelector('#push-button').onclick = function () {
+                    document.querySelector('#myNavigator').pushPage('page2.html', { data: { title: 'Page 2' } });
+                };
+            } else if (page.id === 'page2') {
+                page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+                navigator.geolocation.getCurrentPosition(showPosition);
+            }
+        });
+    </script>
 </body>
+
 </html>
