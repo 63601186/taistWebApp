@@ -40,7 +40,7 @@
         let accelValues = [];
 
         function motionHandler(ev) {
-            document.getElementById('motion-status').innerHTML = ev.acceleration.x.toString() + ',' + ev.acceleration.y.toString() + ',' + ev.acceleration.z.toString(); 
+            accelValues.push(ev.acceleration);                        
         }
 
         window.fn = {};
@@ -51,7 +51,10 @@
                 // GPS tracking
                 gpsWatchId = navigator.geolocation.watchPosition(pos => {
                     const t = new Date(pos.timestamp);
+                    last_val = accelValues[accelValues.length-1];
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
+                    document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' last_val.x.toString() + ',' + last_val.y.toString() + ',' + last_val.z.toString(); 
+                    accelValues = [];
                     console.log(pos.coords, pos.timestamp, t);
                 }, err => {
                     console.log(err);
@@ -63,7 +66,7 @@
                 try {
                     DeviceMotionEvent.requestPermission().then(response => {
                         if (response == 'granted') {
-                            window.addEventListener('devicemotion', motionHandler);
+                            window.addEventListener('devicemotion', motionHandler);                            
                         }                        
                     });
                 } catch {
