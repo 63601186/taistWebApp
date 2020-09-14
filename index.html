@@ -37,15 +37,19 @@
 
     <script>
         let gpsWatchId = 0;
-        let accelValues = [];
+        let motionX = [];
+        let motionY = [];
+        let motionZ = [];
 
-        function submitFirebase(t, pos, motion) {
+        function submitFirebase(t, pos, X, Y, Z) {
             let Url = document.getElementById('server-url').value;
             let Data = {
                 timestamp: t,
                 latitude: pos.latitude,
                 longitude: pos.longitude,
-                motion: motion
+                motionX: X,
+                motionY: Y,
+                motionZ: Z,
             };
             const Params = {
                 headers: {
@@ -59,7 +63,9 @@
         }
 
         function motionHandler(ev) {
-            accelValues.push(ev.acceleration);                        
+            motionX.push(ev.acceleration.x);
+            motionY.push(ev.acceleration.y);
+            motionZ.push(ev.acceleration.z); 
         }
 
         window.fn = {};
@@ -70,11 +76,15 @@
                 // GPS tracking
                 gpsWatchId = navigator.geolocation.watchPosition(pos => {
                     const t = new Date(pos.timestamp);
-                    last_val = accelValues[accelValues.length-1];
+                    lastX = motionX[motionX.length-1];
+                    lastY = motionY[motionY.length-1];
+                    lastZ = motionZ[motionZ.length-1];
                     submitFirebase(t, pos.coords, accelValues)
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
-                    document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' + last_val.x.toFixed(2) + ',' + last_val.y.toFixed(2) + ',' + last_val.z.toFixed(2); 
-                    accelValues = [];
+                    document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' + lastX.toFixed(2) + ',' + lastY.toFixed(2) + ',' + lastZ.toFixed(2); 
+                    motionX = [];
+                    motionY = [];
+                    motionZ = [];
                     console.log(pos.coords, pos.timestamp, t);
                 }, err => {
                     console.log(err);
@@ -100,37 +110,6 @@
                 document.getElementById('start-button').innerText = 'START';
             }
         }
-
-        document.addEventListener('init', function (event) {
-            var page = event.target;
-
-            function showPosition(position) {
-                page.querySelector('#latlng').innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
-                const Url = 'https://supachai-taist-demo.firebaseio.com/logs.json';
-                let Data = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                };
-                const Params = {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(Data),
-                    method: 'POST'
-                };
-                console.log(JSON.stringify(Data));
-                fetch(Url, Params).then(data => { return data.json(); }).then(res => { console.log(res); });
-            }
-
-            if (page.id === 'page1') {
-                page.querySelector('#push-button').onclick = function () {
-                    document.querySelector('#myNavigator').pushPage('page2.html', { data: { title: 'Page 2' } });
-                };
-            } else if (page.id === 'page2') {
-                page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
-                navigator.geolocation.getCurrentPosition(showPosition);
-            }
-        });
     </script>
 </body>
 
