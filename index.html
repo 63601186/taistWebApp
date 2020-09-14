@@ -12,44 +12,68 @@
 
     <template id="mainPage.html">
         <ons-page id="mainPage">
+            <ons-toolbar>
+                <div class="center">Smartphone Probe</div>
+            </ons-toolbar>
             <ons-list>
-                <ons-list-header>Smartphone Probe</ons-list-header>
                 <ons-list-item>
                     <label class="left">URL</label>
                     <label class="center">
-                        <ons-input id="server-input" placeholder="Firebase URL"></ons-input>
+                        <ons-input id="server-url" placeholder="Firebase URL"></ons-input>
                     </label>
                 </ons-list-item>
                 <ons-list-item>
                     <label class="left">GPS</label>
-                    <div class="right">
-                        <ons-switch id="gps-switch" checked="true"></ons-switch>
-                    </div>
-                </ons-list-item>                
-                <ons-list-item>
-                    <label class="left">Accelerometer</label>
-                    <div class="right">
-                        <ons-switch id="accel-switch" checked="false"></ons-switch>
-                    </div>
+                    <label class="right" id="gps-status">NULL</label>
                 </ons-list-item>
                 <ons-list-item>
-                    <label class="left">Gyroscope</label>
-                    <div class="right">
-                        <ons-switch id="gyro-switch" checked="false"></ons-switch>
-                    </div>
-                </ons-list-item> 
-                <ons-list-item>
-                    <label class="left">Magnetometer</label>
-                    <div class="right">
-                        <ons-switch id="mag-switch" checked="false"></ons-switch>
-                    </div>
-                </ons-list-item>                                           
-                <ons-button modifier="large" id="start-button">START</ons-button>
+                    <label class="left">Motion</label>
+                    <label class="right" id="accel-switch">NULL</label>
+                </ons-list-item>
             </ons-list>
+            <ons-button modifier="large" id="start-button" onclick="fn.startAcq()">START</ons-button>
         </ons-page>
     </template>
 
     <script>
+        let gpsWatchId = 0;
+        let accelValues = [];
+
+        window.fn = {};
+
+        window.fn.startAcq = function () {
+            const status = document.getElementById('start-button').innerText;
+            if (status == 'START') {
+                // GPS tracking
+                gpsWatchId = navigator.geolocation.watchPosition(pos => {
+                    const t = new Date(pos.timestamp);
+                    document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
+                    console.log(pos.coords, pos.timestamp, t);
+                });
+                document.getElementById('start-button').innerText = 'STOP';
+            } else {
+                navigator.geolocation.clearWatch(gpsWatchId);
+                gpsWatchId = 0;
+                document.getElementById('start-button').innerText = 'START';
+            }
+        }
+
+        window.fn.submitFirebase = function () {
+            let Url = document.getElementById('server-url').value;
+            let Data = {
+                url: Url
+            };
+            const Params = {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Data),
+                method: 'POST'
+            };
+            console.log(JSON.stringify(Data))
+            //fetch(Url, Params).then(data => { return data.json(); }).then(res => { console.log(res); });
+        }
+
         document.addEventListener('init', function (event) {
             var page = event.target;
 
