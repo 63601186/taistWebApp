@@ -54,8 +54,8 @@
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
                     console.log(pos.coords, pos.timestamp, t);
                 },options={
-                    enableHighAccuracy = true,
-                    timeout = 10000
+                    enableHighAccuracy: true,
+                    timeout: 10000
                 });
                 try {
                     DeviceMotionEvent.requestPermission().then(response => {
