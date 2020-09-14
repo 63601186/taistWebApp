@@ -80,7 +80,7 @@
                     lastX = motionX[motionX.length-1];
                     lastY = motionY[motionY.length-1];
                     lastZ = motionZ[motionZ.length-1];
-                    submitFirebase(t, pos.coords, accelValues)
+                    submitFirebase(t, pos.coords, motionX, motionY, motionZ)
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
                     document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' + lastX.toFixed(2) + ',' + lastY.toFixed(2) + ',' + lastZ.toFixed(2); 
                     motionX = [];
