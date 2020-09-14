@@ -71,9 +71,9 @@
                 gpsWatchId = navigator.geolocation.watchPosition(pos => {
                     const t = new Date(pos.timestamp);
                     last_val = accelValues[accelValues.length-1];
+                    submitFirebase(t, pos.coords, accelValues)
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
                     document.getElementById('motion-status').innerHTML = accelValues.length.toString() + ':' + last_val.x.toFixed(2) + ',' + last_val.y.toFixed(2) + ',' + last_val.z.toFixed(2); 
-                    submitFirebase(t, pos.coords, accelValues)
                     accelValues = [];
                     console.log(pos.coords, pos.timestamp, t);
                 }, err => {
