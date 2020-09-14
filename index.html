@@ -28,7 +28,7 @@
                 </ons-list-item>
                 <ons-list-item>
                     <label class="left">Motion</label>
-                    <label class="right" id="accel-switch">NULL</label>
+                    <label class="right" id="motion-status">NULL</label>
                 </ons-list-item>
             </ons-list>
             <ons-button modifier="large" id="start-button" onclick="fn.startAcq()">START</ons-button>
@@ -38,6 +38,10 @@
     <script>
         let gpsWatchId = 0;
         let accelValues = [];
+
+        function motionHandler(ev) {
+            document.getElementById('motion-status').innerHTML = ev.accelation.x.toString() + ',' + ev.accelation.y.toString() + ',' + ev.accelation.z.toString(); 
+        }
 
         window.fn = {};
 
@@ -53,9 +57,19 @@
                     enableHighAccuracy = true,
                     timeout = 10000
                 });
+                try {
+                    DeviceMotionEvent.requestPermission().then(response => {
+                        if (response == 'granted') {
+                            window.addEventListener('devicemotion', motionHandler);
+                        }                        
+                    });
+                } catch {
+                    window.addEventListener('devicemotion', motionHandler);
+                }
                 document.getElementById('start-button').innerText = 'STOP';
             } else {
                 navigator.geolocation.clearWatch(gpsWatchId);
+                window.removeEventListener('devicemotion', motionHandler);
                 gpsWatchId = 0;
                 document.getElementById('start-button').innerText = 'START';
             }
