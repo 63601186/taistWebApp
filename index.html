@@ -42,7 +42,8 @@
         let motionZ = [];
 
         function submitFirebase(t, pos, X, Y, Z) {
-            let Url = document.getElementById('server-url').value;
+            let Url = 'https://supachai-iot-project.firebaseio.com/test.json'
+            //document.getElementById('server-url').value;
             let Data = {
                 timestamp: t,
                 latitude: pos.latitude,
