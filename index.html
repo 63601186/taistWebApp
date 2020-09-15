@@ -22,6 +22,18 @@
             </ons-toolbar>
             <ons-list>
                 <ons-list-item>
+                    <label class="left">Project</label>
+                    <label class="center">
+                        <ons-input id="project-name" placeholder="Firebase project"></ons-input>
+                    </label>
+                </ons-list-item>
+                <ons-list-item>
+                    <label class="left">Path</label>
+                    <label class="center">
+                        <ons-input id="path-name" placeholder="Database path"></ons-input>
+                    </label>
+                </ons-list-item>                
+                <ons-list-item>
                     <label class="left">GPS</label>
                     <label class="right" id="gps-status">NULL</label>
                 </ons-list-item>
@@ -55,7 +67,9 @@
 
 
         function submitFirebase(t) {
-            let Url = 'https://supachai-iot-project.firebaseio.com/test.json'
+            const projName = document.getElementById('project-name').value;
+            const pathName = document.getElementById('path-name').value;
+            let Url = 'https://' + projName + '.firebaseio.com/' + pathName + '.json';            
             let Data = {
                 timestamp: t,
                 latitude: posLatitude,
@@ -76,6 +90,7 @@
             };
             console.log(JSON.stringify(Data))
             if (onlineFlag) {
+                console.log('Adding to ' + Url);
                 fetch(Url, Params).then(data => { 
                     return data.json(); 
                 }).then(res => { 
