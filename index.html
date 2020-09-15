@@ -22,12 +22,6 @@
             </ons-toolbar>
             <ons-list>
                 <ons-list-item>
-                    <label class="left">URL</label>
-                    <label class="center">
-                        <ons-input id="server-url" placeholder="Firebase URL"></ons-input>
-                    </label>
-                </ons-list-item>
-                <ons-list-item>
                     <label class="left">GPS</label>
                     <label class="right" id="gps-status">NULL</label>
                 </ons-list-item>
@@ -62,7 +56,6 @@
 
         function submitFirebase(t) {
             let Url = 'https://supachai-iot-project.firebaseio.com/test.json'
-            //document.getElementById('server-url').value;
             let Data = {
                 timestamp: t,
                 latitude: posLatitude,
