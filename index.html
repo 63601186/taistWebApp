@@ -57,14 +57,28 @@
         let motionY = [];
         let motionZ = [];        
         let motionXAvg = [];
-        let motionXMax = [];
         let motionYAvg = [];
-        let motionYMax = [];
         let motionZAvg = [];
+        let motionXStdev = [];
+        let motionYStdev = [];
+        let motionZStdev = [];        
+        let motionXMin = [];
+        let motionYMin = [];
+        let motionZMin = [];        
+        let motionXMax = [];
+        let motionYMax = [];
         let motionZMax = [];
         const arrAvg = arr => arr.reduce((a,b) => a + b, 0) / arr.length;
+        const arrStdev = arr => {
+            const avg = arrAvg(arr);
+            let total = 0;
+            for (let i = 0; i < arr.length; i++) {
+                total += Math.pow((arr[i] - avg),2);
+            }
+            return Math.sqrt(total/arr.length);            
+        };
+        const arrMin = arr => {return Math.min(...arr)};
         const arrMax = arr => {return Math.max(...arr)};
-
 
         function submitFirebase(t) {
             const projName = document.getElementById('project-name').value;
@@ -75,10 +89,16 @@
                 latitude: posLatitude,
                 longitude: posLongitude,
                 motionXAvg: motionXAvg,
-                motionXMax: motionXMax,
                 motionYAvg: motionZAvg,
-                motionYMax: motionZMax,
                 motionZAvg: motionZAvg,
+                motionXStdev: motionXStdev,
+                motionYStdev: motionYStdev,
+                motionZStdev: motionZStdev,
+                motionXMin: motionXMin,
+                motionYMin: motionYMin,   
+                motionZMin: motionZMin,                
+                motionXMax: motionXMax,
+                motionYMax: motionYMax,   
                 motionZMax: motionZMax                
             };
             const Params = {
@@ -123,6 +143,12 @@
                         motionXAvg.push(arrAvg(motionX));
                         motionYAvg.push(arrAvg(motionY));
                         motionZAvg.push(arrAvg(motionZ));
+                        motionXStdev.push(arrStdev(motionX));
+                        motionYStdev.push(arrStdev(motionY));
+                        motionZStdev.push(arrStdev(motionZ));                        
+                        motionXMin.push(arrMin(motionX));
+                        motionYMin.push(arrMin(motionY));
+                        motionZMin.push(arrMin(motionZ));                        
                         motionXMax.push(arrMax(motionX));
                         motionYMax.push(arrMax(motionY));
                         motionZMax.push(arrMax(motionZ)); 
