@@ -91,7 +91,9 @@
             console.log(JSON.stringify(Data))
             if (onlineFlag) {
                 console.log('Adding to ' + Url);
+                document.getElementById('online-flag').innerHTML = 'sending';
                 fetch(Url, Params).then(data => { 
+                    document.getElementById('online-flag').innerHTML = 'OFFLINE';
                     return data.json(); 
                 }).then(res => { 
                     console.log(res); 
