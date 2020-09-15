@@ -14,6 +14,11 @@
         <ons-page id="mainPage">
             <ons-toolbar>
                 <div class="center">Smartphone Probe</div>
+                <div class="right">
+                    <ons-toolbar-button onclick="fn.toggleOnline()" id="online-flag">
+                        ONLINE
+                    </ons-toolbar-button>
+                </div>                
             </ons-toolbar>
             <ons-list>
                 <ons-list-item>
@@ -36,21 +41,38 @@
     </template>
 
     <script>
+        let updateFlag = false;
+        let onlineFlag = false;
+        let prevTick = 0;
         let gpsWatchId = 0;
+        let posLatitude = [];
+        let posLongitude = [];
         let motionX = [];
         let motionY = [];
-        let motionZ = [];
+        let motionZ = [];        
+        let motionXAvg = [];
+        let motionXMax = [];
+        let motionYAvg = [];
+        let motionYMax = [];
+        let motionZAvg = [];
+        let motionZMax = [];
+        const arrAvg = arr => arr.reduce((a,b) => a + b, 0) / arr.length;
+        const arrMax = arr => {return Math.max(...arr)};
 
-        function submitFirebase(t, pos, X, Y, Z) {
+
+        function submitFirebase(t) {
             let Url = 'https://supachai-iot-project.firebaseio.com/test.json'
             //document.getElementById('server-url').value;
             let Data = {
                 timestamp: t,
-                latitude: pos.latitude,
-                longitude: pos.longitude,
-                motionX: X,
-                motionY: Y,
-                motionZ: Z,
+                latitude: posLatitude,
+                longitude: posLongitude,
+                motionXAvg: motionXAvg,
+                motionXMax: motionXMax,
+                motionYAvg: motionZAvg,
+                motionYMax: motionZMax,
+                motionZAvg: motionZAvg,
+                motionZMax: motionZMax                
             };
             const Params = {
                 headers: {
@@ -60,7 +82,13 @@
                 method: 'POST'
             };
             console.log(JSON.stringify(Data))
-            fetch(Url, Params).then(data => { return data.json(); }).then(res => { console.log(res); });
+            if (onlineFlag) {
+                fetch(Url, Params).then(data => { 
+                    return data.json(); 
+                }).then(res => { 
+                    console.log(res); 
+                });
+            }
         }
 
         function motionHandler(ev) {
@@ -72,21 +100,44 @@
         window.fn = {};
 
         window.fn.startAcq = function () {
-            const status = document.getElementById('start-button').innerText;
-            if (status == 'START') {
+            if (!updateFlag) {
+                console.log('Start updating');
                 // GPS tracking
                 gpsWatchId = navigator.geolocation.watchPosition(pos => {
-                    const t = new Date(pos.timestamp);
-                    lastX = motionX[motionX.length-1];
-                    lastY = motionY[motionY.length-1];
-                    lastZ = motionZ[motionZ.length-1];
-                    submitFirebase(t, pos.coords, motionX, motionY, motionZ)
+                    posLatitude.push(pos.coords.latitude);
+                    posLongitude.push(pos.coords.longitude);
+                    maxX = arrMax(motionX);
+                    maxY = arrMax(motionY);
+                    maxZ = arrMax(motionZ);
+                    if (maxX != NaN) {
+                        motionXAvg.push(arrAvg(motionX));
+                        motionYAvg.push(arrAvg(motionY));
+                        motionZAvg.push(arrAvg(motionZ));
+                        motionXMax.push(arrMax(motionX));
+                        motionYMax.push(arrMax(motionY));
+                        motionZMax.push(arrMax(motionZ)); 
+                        motionX = [];
+                        motionY = [];
+                        motionZ = [];                             
+                    }
                     document.getElementById('gps-status').innerHTML = pos.coords.latitude.toString() + ',' + pos.coords.longitude.toString();
-                    document.getElementById('motion-status').innerHTML = motionX.length.toString() + ':' + lastX.toFixed(2) + ',' + lastY.toFixed(2) + ',' + lastZ.toFixed(2); 
-                    motionX = [];
-                    motionY = [];
-                    motionZ = [];
-                    console.log(pos.coords, pos.timestamp, t);
+                    if (maxX != NaN) {
+                        document.getElementById('motion-status').innerHTML = maxX.toFixed(2) + ',' + maxY.toFixed(2) + ',' + maxZ.toFixed(2); 
+                    }
+                    // Sending data
+                    if (Date.now() > prevTick + 10000) {
+                        const t = new Date(pos.timestamp);
+                        submitFirebase(t);
+                        posLatitude = [];
+                        posLongitude = [];                        
+                        motionXAvg = [];
+                        motionYAvg = [];
+                        motionZAvg = [];
+                        motionXMax = [];
+                        motionYMax = [];
+                        motionZMax = [];
+                        prevTick = Date.now();
+                    }
                 }, err => {
                     console.log(err);
                 },
@@ -94,6 +145,7 @@
                     enableHighAccuracy: true,
                     timeout: 10000
                 });
+                // Motion tracking       
                 try {
                     DeviceMotionEvent.requestPermission().then(response => {
                         if (response == 'granted') {
@@ -104,13 +156,28 @@
                     window.addEventListener('devicemotion', motionHandler);
                 }
                 document.getElementById('start-button').innerText = 'STOP';
+                updateFlag = true;
             } else {
+                console.log('Stop updating');
                 navigator.geolocation.clearWatch(gpsWatchId);
                 window.removeEventListener('devicemotion', motionHandler);
                 gpsWatchId = 0;
-                document.getElementById('start-button').innerText = 'START';
+                document.getElementById('start-button').innerText = 'START';                
+                updateFlag = false;
             }
-        }
+        };
+
+        window.fn.toggleOnline = function () {
+            if (!onlineFlag) {
+                console.log('Start syncing');
+                onlineFlag = true;
+                document.getElementById('online-flag').innerHTML = 'OFFLINE';
+            } else {
+                console.log('Stop syncing');
+                onlineFlag = false;
+                document.getElementById('online-flag').innerHTML = 'ONLINE';
+            }            
+        };
     </script>
 </body>
 
